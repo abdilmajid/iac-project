@@ -9,7 +9,7 @@
 # This provisions the control node 
 resource "aws_instance" "control" {
   ami  = var.ami # RHEL9 
-  instance_type = var.instance_managed
+  instance_type = var.instance_control
   # if no default subnet, then we can use setup_id
   # make sure to use correct subnet
   subnet_id = "subnet-064789520be471d06"
@@ -27,7 +27,7 @@ resource "aws_instance" "node1" {
 
   tags = {
     Name = "node1"
-    Description= "Ansbile Managed Node"
+    Description = "Ansbile Managed Node"
   }
 }
 

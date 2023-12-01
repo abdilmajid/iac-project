@@ -1,5 +1,5 @@
 variable "ami" {
-  default = "ami-023c11a32b0207432" 
+  default = "ami-023c11a32b0207432"
 }
 
 # instance_type for managed servers
