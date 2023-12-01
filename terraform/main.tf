@@ -8,11 +8,26 @@
 
 # This provisions the control node 
 resource "aws_instance" "control" {
-  ami  = "ami-023c11a32b0207432" # RHEL9 
-  instance_type = "t2.micro"
+  ami  = var.ami # RHEL9 
+  instance_type = var.instance_managed
   # if no default subnet, then we can use setup_id
   # make sure to use correct subnet
   subnet_id = "subnet-064789520be471d06"
+
+  tags = {
+    Name = "control"
+    Description = "Ansible Control Node"
+  }
 }
 
+# This provisions managed node1
+resource "aws_instance" "node1" {
+  ami = var.ami
+  instance_type = var.instance_managed
+
+  tags = {
+    Name = "node1"
+    Description= "Ansbile Managed Node"
+  }
+}
 
