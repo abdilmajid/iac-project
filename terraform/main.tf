@@ -15,27 +15,52 @@ aws_secret_access_key="secretkey"
 region=us-east-1
 */
 
-# # This provisions the control node 
-# resource "aws_instance" "control" {
-#   ami  = var.ami # RHEL9 
-#   instance_type = var.instance_control
-#   # if no default subnet, then we can use setup_id
-#   # make sure to use correct subnet
-#   subnet_id = "subnet-037d9537bf26aa812"
+# Creates IAM(Identity & Access Management) User
+# this allows us to access resources for the provisioned instance
+resource "aws_iam_user" "admin-user" {
+  name = "abdil"
+  tags = {
+    Description = "Technical Team Leader"
+  }
+}
 
-#   # below will update the repo, then install epel repo which contains our ansible package, then we install the anisible package
-#   user_data = <<EOF
-#               sudo dnf update -y
-#               sudo dnf install \
-#               https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -y
-#               sudo dnf install ansible -y
-#               EOF
+# need to attach a policy for IAM user, this is admin user so we give them admin access
+resource "aws_iam_policy" "adminUser" {
+  name = "AdminUser"
+  # we can insert policy with Heredoc Syntax or just pass into file() function 
+  policy = file("admin-policy.json")
+}
 
-#   tags = {
-#     Name = "control"
-#     Description = "Ansible Control Node"
-#   }
-# }
+# This block will link iam policy to the given user
+resource "aws_iam_user_policy_attachment" "abdil-admin-access" {
+  user = aws_iam_user.admin-user.name
+  policy_arn = aws_iam_policy.adminUser.arn
+}
+
+# This provisions the control node 
+resource "aws_instance" "control" {
+  ami  = var.ami # RHEL9 
+  instance_type = var.instance_control
+  # if no default subnet, then we can use setup_id
+  # make sure to use correct subnet
+  subnet_id = "subnet-037d9537bf26aa812"
+
+  # below will update the repo, then install epel repo which contains our ansible package, then we install the anisible package
+  user_data = <<EOF
+  sudo dnf update -y
+  sudo dnf install \
+  https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm -y
+  sudo dnf install ansible -y
+  EOF
+
+  tags = {
+    Name = "control"
+    Description = "Ansible Control Node"
+  }
+}
+
+#Inorder to ssh into our instance we need to use "aws_key_pair", 
+#1st: create the key pair  
 
 # # This block provisions managed node1
 # resource "aws_instance" "node1" {
@@ -58,25 +83,21 @@ region=us-east-1
 #     Description = "Ansbile Managed Node2"
 #   }
 # }
+#
 
-# Creates IAM(Identity & Access Management) User
-# this allows us to access resources for the provisioned instance
-resource "aws_iam_user" "admin-user" {
-  name = "abdil"
-  tags = {
-    Description = "Technical Team Leader"
+resource "aws_key_pair" "control" {
+  public_key = file("/home/abdil/.ssh/id_rsa.pub")
+}
+
+# we need to setup networking so we can ssh into the instance, so we need to use "aws_security_group"
+resource "aws_security_group" "ssh-access" {
+  name = "ssh-access"
+  description = "Allow SSH access from the internet"
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
-# need to attach a policy for IAM user, this is admin user so we give them admin access
-resource "aws_iam_policy" "adminUser" {
-  name = "AdminUser"
-  # we can insert policy with Heredoc Syntax or just pass into file() function 
-  policy = file("admin-policy.json")
-}
-
-# This block will link our the iam policy to the given user
-resource "aws_iam_user_policy_attachment" "abdil-admin-access" {
-  user = aws_iam_user.admin-user.name
-  policy_arn = aws_iam_policy.adminUser.arn
-}
