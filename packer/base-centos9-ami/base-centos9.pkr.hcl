@@ -35,6 +35,7 @@ packer {
 }
 
 source "amazon-ebs" "centos9" {
+  # this will create an ami image in our "owned ami" 
   ami_name      = "packer-centos9-ami-{{timestamp}}"
   instance_type = "t2.medium"
   region        = "us-east-1"
@@ -45,6 +46,7 @@ source "amazon-ebs" "centos9" {
       virtualization-type = "hvm"
     }
     most_recent = true
+    # this is centos.org owner
     owners      = ["125523088429"]
   }
   ssh_username = "ec2-user"
@@ -61,19 +63,30 @@ provisioner "shell" {
     "echo update packages",
     // "sleep 30",
     "sudo dnf update -y",
+    "echo installing cloud-init",
     "sudo dnf install cloud-init -y"
   ]
 }
 
+# we will use cloud-init to create the ansible user with default pass
+# default pass is "changeme" 
 provisioner "file" {
-  source = "cloud-init/"
-  destination = "/etc/cloud"
+  source = "files/defaults.cfg"
+  destination = "/tmp/defaults.cfg"
 }
 
+# moving default.cfs from /tmp to proper directory
+provisioner "shell" {
+  inline = [ 
+    "echo moving defaults.cfg file",
+    "sudo mv /tmp/defaults.cfg /etc/cloud/cloud.cfg.d/defaults.cfg" 
+    ]
+}
+# the shell script will install ansible from repo,
 provisioner "shell" {
   scripts = [
     "scripts/setup.sh",
-    "scripts/create_ansible_user.sh",
+    "scripts/ansible_sudo.sh"
   ]
 }
 
