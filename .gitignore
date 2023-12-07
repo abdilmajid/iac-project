@@ -1,3 +1,6 @@
 .aws/
 terraform/.terraform/
 terraform/.terraform.lock.hcl
+
+# private ssh-key
+tf-packer
