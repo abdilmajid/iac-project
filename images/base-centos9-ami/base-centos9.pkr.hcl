@@ -31,6 +31,15 @@ build {
     "source.amazon-ebs.centos9"
   ]
 
+  provisioner "file" {
+    source = "../../tf-packer.pub"
+    destination = "/tmp/tf-packer.pub"
+  }
+
+  provisioner "shell" {
+    script = "scripts/setup.sh"
+  }
+
 // provisioner "shell" {
 //   inline = [
 //     "echo update packages",
