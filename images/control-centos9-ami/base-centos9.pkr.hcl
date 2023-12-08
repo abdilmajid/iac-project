@@ -40,33 +40,4 @@ build {
     script = "scripts/setup.sh"
   }
 
-// provisioner "shell" {
-//   inline = [
-//     "echo update packages",
-//     // "sleep 30",
-//     "sudo dnf update -y",
-//     // "echo installing cloud-init",
-//     // "sudo dnf install cloud-init -y"
-//   ]
-// }
-
-# we will use cloud-init to create the ansible user with default pass
-# default pass is "changeme" 
-// provisioner "file" {
-//   source = "files/defaults.cfg"
-//   destination = "/tmp/defaults.cfg"
-// }
-
-# moving default.cfs from /tmp to proper directory
-// provisioner "shell" {
-//   inline = [ 
-//     "echo moving defaults.cfg file",
-//     "sudo mv /tmp/defaults.cfg /etc/cloud/cloud.cfg.d/defaults.cfg" 
-//     ]
-// }
-# the shell script will install ansible from repo,
-// provisioner "shell" {
-//   script = "scripts/setup.sh"
-// }
-
 }

@@ -97,9 +97,6 @@ resource "aws_instance" "control" {
     private_key = file("/home/abdil/.ssh/id_rsa")
   }
   
-
-  
-
   #can use key_name argument to connect ssh keys to aws_instance
   # or "aws_key_pair.control.id"
   key_name = "control_node" 

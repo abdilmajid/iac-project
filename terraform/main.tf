@@ -1,6 +1,3 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
 terraform {
   required_providers {
     aws = {
@@ -44,11 +41,14 @@ resource "aws_route_table_association" "rta_subnet_public" {
   route_table_id = aws_route_table.rtb_public.id
 }
 
-resource "aws_security_group" "sg_22_80" {
-  name   = "sg_22"
+# this resource block creates a security group which allows access on ports 22,80, and 8080 
+resource "aws_security_group" "sg_control" {
+  name   = "sg_control"
   vpc_id = aws_vpc.vpc.id
 
-  # SSH access from the VPC
+#|NOTE: "ingress" -> Inbound traffic rules, "egress" -> Outbound traffic rules)
+
+#SSH access 
   ingress {
     from_port   = 22
     to_port     = 22
@@ -62,7 +62,7 @@ resource "aws_security_group" "sg_22_80" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
+# HTTP access
   ingress {
     from_port   = 80
     to_port     = 80
@@ -70,6 +70,7 @@ resource "aws_security_group" "sg_22_80" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+#|Note: "-1" specifies all protocals, so allows outbound traffic on all ports
   egress {
     from_port   = 0
     to_port     = 0
@@ -78,11 +79,13 @@ resource "aws_security_group" "sg_22_80" {
   }
 }
 
-resource "aws_instance" "web" {
-  ami                         = "ami-0426797d2033193d6"
+#|NOTE: since were using ami's created with packer, the ami image will be what prints to screen after "packer build" command is successful, you can also find it in aws dashboard under [ Images > AMIs > Owned by me ]
+resource "aws_instance" "control_node" {
+  # ami from packer build
+  ami                         = var.ami_control
   instance_type               = "t2.medium"
   subnet_id                   = aws_subnet.subnet_public.id
-  vpc_security_group_ids      = [aws_security_group.sg_22_80.id]
+  vpc_security_group_ids      = [aws_security_group.sg_control.id]
   associate_public_ip_address = true
 
   tags = {
@@ -90,6 +93,8 @@ resource "aws_instance" "web" {
   }
 }
 
+# this will print out the public ip of provision ec2 instance
 output "public_ip" {
-  value = aws_instance.web.public_ip
+  description = "Public IP of control_node EC2 instance"
+  value = aws_instance.control_node.public_ip
 }
