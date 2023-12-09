@@ -7,10 +7,10 @@ packer {
   }
 }
 
-source "amazon-ebs" "control_centos9" {
+source "amazon-ebs" "managed_centos9" {
   # this will create an ami image in our "owned ami" 
-  ami_name      = "packer-control-ami-{{timestamp}}"
-  instance_type = "t2.medium"
+  ami_name      = "packer-managed-ami-{{timestamp}}"
+  instance_type = "t2.micro"
   region        = "us-east-1"
   source_ami_filter {
     filters = {
@@ -28,7 +28,7 @@ source "amazon-ebs" "control_centos9" {
 build {
   name    = "learn-packer"
   sources = [
-    "source.amazon-ebs.control_centos9"
+    "source.amazon-ebs.managed_centos9"
   ]
 
   provisioner "file" {

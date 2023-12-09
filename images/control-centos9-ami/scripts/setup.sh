@@ -1,9 +1,12 @@
 #!/bin/bash
 echo updates
 sudo dnf update -y
-echo install epel package
+echo install epel and tab-completion packages
 sudo dnf config-manager --set-enabled crb
-sudo dnf install epel-release epel-next-release -y
+sudo dnf install epel-release epel-next-release bash-completion bash-completion-extras -y
+sudo locate bash_completion.sh
+sudo updatedb
+sudo source /etc/profile.d/bash_completion.sh
 echo install ansible
 sudo yum install ansible -y
 

@@ -1,6 +1,14 @@
 #!/bin/bash
 echo updates
 sudo dnf update -y
+echo install epel and tab-completion packages
+sudo dnf config-manager --set-enabled crb
+sudo dnf install epel-release epel-next-release bash-completion bash-completion-extras -y
+sudo locate bash_completion.sh
+sudo updatedb
+sudo source /etc/profile.d/bash_completion.sh
+# echo install firewalld package
+# sudo dnf install firewalld -y
 
 # Add ansible user and setup sudo to allow no-password sudo for ansible 
 sudo useradd -m -s /bin/bash ansible
@@ -15,3 +23,5 @@ sudo cp /tmp/tf-packer.pub /home/ansible/.ssh/authorized_keys
 sudo chmod 600 /home/ansible/.ssh/authorized_keys
 sudo chown -R ansible /home/ansible/.ssh
 sudo usermod --shell /bin/bash ansible
+
+#Setup firewall rules

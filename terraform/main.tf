@@ -41,7 +41,7 @@ resource "aws_route_table_association" "rta_subnet_public" {
   route_table_id = aws_route_table.rtb_public.id
 }
 
-# this resource block creates a security group which allows access on ports 22,80, and 8080 
+# this resource block creates a security group which only allows access on ports 22 
 resource "aws_security_group" "sg_control" {
   name   = "sg_control"
   vpc_id = aws_vpc.vpc.id
@@ -56,9 +56,35 @@ resource "aws_security_group" "sg_control" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+#|Note: "-1" specifies all protocals, so allows outbound traffic on all ports
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+# this resource block creates a security group which allows access on ports 22,80,443,8080, 9090 
+resource "aws_security_group" "sg_managed" {
+  name   = "sg_managed"
+  vpc_id = aws_vpc.vpc.id
+
+#|NOTE: "ingress" -> Inbound traffic rules, "egress" -> Outbound traffic rules)
+
+#SSH access 
   ingress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+# PORT for cockpit
+  ingress {
+    from_port   = 9090
+    to_port     = 9090
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -70,6 +96,15 @@ resource "aws_security_group" "sg_control" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+# HTTPS access
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
 #|Note: "-1" specifies all protocals, so allows outbound traffic on all ports
   egress {
     from_port   = 0
@@ -79,13 +114,15 @@ resource "aws_security_group" "sg_control" {
   }
 }
 
+
 #|NOTE: since were using ami's created with packer, the ami image will be what prints to screen after "packer build" command is successful, you can also find it in aws dashboard under [ Images > AMIs > Owned by me ]
+#|NOTE: it's better practice to use custom ami with eaverything sertup already rather then using "user-data" or provisioners to setup instance. thats why we use packer first
 resource "aws_instance" "control_node" {
   # ami from packer build
   ami                         = var.ami_control
   instance_type               = "t2.medium"
   subnet_id                   = aws_subnet.subnet_public.id
-  vpc_security_group_ids      = [aws_security_group.sg_control.id]
+  vpc_security_group_ids      = [aws_security_group.sg_managed.id]
   associate_public_ip_address = true
 
   tags = {
