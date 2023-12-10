@@ -7,8 +7,10 @@ sudo dnf install epel-release epel-next-release bash-completion bash-completion-
 sudo locate bash_completion.sh
 sudo updatedb
 sudo source /etc/profile.d/bash_completion.sh
-echo install ansible
-sudo yum install ansible -y
+# this installs ansible package, aswell as firewalld to manage firewall rules
+echo install ansible and firewalld
+sudo yum install ansible firewalld -y
+
 
 # Add ansible user and setup sudo to allow no-password sudo for ansible 
 sudo useradd -m -s /bin/bash ansible

@@ -122,6 +122,22 @@ resource "aws_instance" "control_node" {
   ami                         = var.ami_control
   instance_type               = "t2.medium"
   subnet_id                   = aws_subnet.subnet_public.id
+  vpc_security_group_ids      = [aws_security_group.sg_control.id]
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "Learn-Packer"
+  }
+}
+
+# provisions 2 t2.small ec2 instances using ami image build earlier with packer
+resource "aws_instance" "managed_node" {
+  # Creates 2 identical ec2 instance 
+  count = 2
+  # ami from packer build
+  ami                         = var.ami_managed
+  instance_type               = "t2.small"
+  subnet_id                   = aws_subnet.subnet_public.id
   vpc_security_group_ids      = [aws_security_group.sg_managed.id]
   associate_public_ip_address = true
 
