@@ -32,8 +32,13 @@ build {
   ]
 
   provisioner "file" {
-    source = "../../tf-packer.pub"
+    source = "../../keys/tf-packer.pub"
     destination = "/tmp/tf-packer.pub"
+  }
+
+  provisioner "file" {
+    source = "../../keys/tf-packer"
+    destination = "/tmp/tf-packer"
   }
 
   provisioner "shell" {

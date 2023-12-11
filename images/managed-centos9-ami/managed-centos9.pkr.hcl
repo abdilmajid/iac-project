@@ -10,7 +10,7 @@ packer {
 source "amazon-ebs" "managed_centos9" {
   # this will create an ami image in our "owned ami" 
   ami_name      = "packer-managed-ami-{{timestamp}}"
-  instance_type = "t2.micro"
+  instance_type = "t2.small"
   region        = "us-east-1"
   source_ami_filter {
     filters = {
@@ -32,7 +32,7 @@ build {
   ]
 
   provisioner "file" {
-    source = "../../tf-packer.pub"
+    source = "../../keys/tf-packer.pub"
     destination = "/tmp/tf-packer.pub"
   }
 

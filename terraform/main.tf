@@ -104,7 +104,6 @@ resource "aws_security_group" "sg_managed" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-
 #|Note: "-1" specifies all protocals, so allows outbound traffic on all ports
   egress {
     from_port   = 0
@@ -125,8 +124,22 @@ resource "aws_instance" "control_node" {
   vpc_security_group_ids      = [aws_security_group.sg_control.id]
   associate_public_ip_address = true
 
+  # # copy ssh keys to managed node
+  # provisioner "file" {
+  #   source = "keys/"
+  #   destination = "/home/ansible/.ssh"
+
+  # connection {
+  #   type = "ssh"
+  #   user = "ansible"
+  #   host = self.public_ip
+  #   private_key = file("~/iac_project/keys/tf-packer")
+  # }
+
+  # }
+
   tags = {
-    Name = "Learn-Packer"
+    Name = "Control"
   }
 }
 
@@ -142,12 +155,19 @@ resource "aws_instance" "managed_node" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "Learn-Packer"
+    Name = "Managed_${count.index}"
   }
 }
 
 # this will print out the public ip of provision ec2 instance
-output "public_ip" {
-  description = "Public IP of control_node EC2 instance"
+output "control_node_public_ip" {
   value = aws_instance.control_node.public_ip
+  description = "Public IP of control_node EC2 instance"
 }
+
+output "managed_node_public_ip" {
+  value = aws_instance.managed_node.*.private_ip
+  description = "Public IP's of all managed_node EC2 instances"
+}
+
+
