@@ -165,7 +165,7 @@ output "control_node_public_ip" {
   description = "Public IP of control_node EC2 instance"
 }
 
-output "managed_node_public_ip" {
+output "managed_node_private_ip" {
   value = aws_instance.managed_node.*.private_ip
   description = "Public IP's of all managed_node EC2 instances"
 }

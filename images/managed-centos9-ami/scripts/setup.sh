@@ -5,8 +5,8 @@ echo install epel and tab-completion packages
 sudo dnf config-manager --set-enabled crb
 sudo dnf install epel-release epel-next-release bash-completion mlocate -y
 # we use locate command to find bash_completion.sh on system, first we need to populate/update db for mlocate
-updatedb
-sh $(locate bash_completion.sh)
+sudo updatedb
+sudo sh $(locate bash_completion.sh)
 
 
 # Add ansible user and setup sudo to allow no-password sudo for ansible 
@@ -20,6 +20,10 @@ sudo mkdir -p /home/ansible/.ssh
 sudo chmod 700 /home/ansible/.ssh
 sudo cp /tmp/tf-packer.pub /home/ansible/.ssh/authorized_keys
 sudo chmod 600 /home/ansible/.ssh/authorized_keys
-sudo chown -R ansible /home/ansible/.ssh
+# gives ansible user pass of "changeme", this is so we can setup connection between control and managed nodes
+#Need to create new ssh keys inside "control node"
+#|NOTE: need to make sure password is changed 
+# sudo echo "changeme" | sudo passwd --stdin ansible
+sudo chown -R ansible:ansible /home/ansible/.ssh
 sudo usermod --shell /bin/bash ansible
 
