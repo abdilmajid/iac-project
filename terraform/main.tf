@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.42.0"
     }
+    local = {
+      source = "hashicorp/local"
+      version = "2.4.1"
+    }
   }
   required_version = ">= 0.14.5"
 }
@@ -159,6 +163,16 @@ resource "aws_instance" "managed_node" {
   }
 }
 
+# this creates a file called "all_ips", stored in current working dir, that contains the public ip of "control" node and all the private ip's for the managed nodes
+resource "local_file" "all_ips" {
+filename = "public_ip"
+content = <<EOF
+%{for index, ip in aws_instance.managed_node.*.private_ip ~}
+${aws_instance.control_node.public_ip} control
+${ip} node_${index}
+%{ endfor ~}
+EOF
+}
 # this will print out the public ip of provision ec2 instance
 output "control_node_public_ip" {
   value = aws_instance.control_node.public_ip
