@@ -19,12 +19,12 @@ variable "region"{
 
 # ami for control node, build using packer
 variable "ami_control" {
-  default = "ami-02523cfb52842a31b"
+  default = "ami-03fb2d9ea9812a79d"
   description = "ami for ansible control node"
 }
 
 # ami for managed nodes, built using packer
 variable "ami_managed" {
-  default = "ami-0b0f02e86e1e75038"
+  default = "ami-0399510b3b7364c1d"
   description = "ami for ansible managed node"
 }

@@ -128,20 +128,6 @@ resource "aws_instance" "control_node" {
   vpc_security_group_ids      = [aws_security_group.sg_control.id]
   associate_public_ip_address = true
 
-  # # copy ssh keys to managed node
-  # provisioner "file" {
-  #   source = "keys/"
-  #   destination = "/home/ansible/.ssh"
-
-  # connection {
-  #   type = "ssh"
-  #   user = "ansible"
-  #   host = self.public_ip
-  #   private_key = file("~/iac_project/keys/tf-packer")
-  # }
-
-  # }
-
   tags = {
     Name = "Control"
   }

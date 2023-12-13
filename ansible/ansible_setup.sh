@@ -10,16 +10,24 @@ PRV_CONTROL=$(grep control ../terraform/private_ip | cut -f1 -d' ')
 PRV_NODE_0=$(grep node0 ../terraform/private_ip | cut -f1 -d' ')
 PRV_NODE_1=$(grep node1 ../terraform/private_ip | cut -f1 -d' ')
 
+# First check if already appened contents to /etc/hosts
+CHK_HOSTS=$(ssh -i ../keys/tf-packer ansible@$PUB_CONTROL "grep control /etc/hosts" 2>/dev/null)
+CHK_HOSTS=$(echo $?)
+# here we will assume that if "control" private ip already exists in hosts file, then contents have been appended 
+if [ $CHK_HOSTS -eq 0 ]; then
+  echo "hosts file already appened"
+else
+  # Here we update(append) the /etc/hosts file for all provisioned instances to include the private ip's of all instances
+  for i in $PUB_CONTROL $PUB_NODE_0 $PUB_NODE_1; do \
+  scp -i ../keys/tf-packer ../terraform/private_ip ansible@${i}:/tmp;
+  # check if ip's already appended to hosts file
+  ssh -i ../keys/tf-packer ansible@${i} "cat ~/tmp/private_ip | sudo tee -a /etc/hosts"; done
+fi
 
-# Here we update(append) the /etc/hosts file for all provisioned instances to include the private ip's of all instances
-for i in $PUB_CONTROL $PUB_NODE_0 $PUB_NODE_1; do \
-scp -i ../keys/tf-packer ../terraform/private_ip ansible@${i}:~;
-ssh -i ../keys/tf-packer ansible@${i} "cat ~/private_ip | sudo tee -a /etc/hosts"; done
+
+# Copy ansible.cfg(config) and inventory file to ansible users home directory
+for i in ansible.cfg inventory; do \
+scp -i ../keys/tf-packer ${i} ansible@${PUB_CONTROL}:~; done
 
 
-# Copy ansible.cfg(config) file to ansible users home directory
-scp -i ../keys/tf-packer ../terraform/private_ip ansible@${PUB_CONTROL}:~;
-
-# Copy inventory file to ansible users home directory
-scp -i ../keys/tf-packer inventory ansible@${PUB_CONTROL}:~;
 
