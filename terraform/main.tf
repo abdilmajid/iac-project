@@ -163,25 +163,36 @@ resource "aws_instance" "managed_node" {
   }
 }
 
-# this creates a file called "all_ips", stored in current working dir, that contains the public ip of "control" node and all the private ip's for the managed nodes
-resource "local_file" "all_ips" {
-filename = "public_ip"
+# this creates a file called "private_ip", stored in current working dir, that contains the private ip of all instances
+resource "local_file" "private_ip" {
+filename = "private_ip"
 content = <<EOF
+${aws_instance.control_node.private_ip}  control
 %{for index, ip in aws_instance.managed_node.*.private_ip ~}
-${aws_instance.control_node.public_ip} control
-${ip} node_${index}
+${ip}   node_${index}
 %{ endfor ~}
 EOF
 }
-# this will print out the public ip of provision ec2 instance
-output "control_node_public_ip" {
-  value = aws_instance.control_node.public_ip
-  description = "Public IP of control_node EC2 instance"
+
+resource "local_file" "public_ip" {
+filename = "public_ip"
+content = <<EOF
+${aws_instance.control_node.public_ip}  control
+%{for index, ip in aws_instance.managed_node.*.public_ip ~}
+${ip}   node_${index}
+%{ endfor ~}
+EOF
 }
 
-output "managed_node_private_ip" {
-  value = aws_instance.managed_node.*.private_ip
-  description = "Public IP's of all managed_node EC2 instances"
-}
+# # this will print out the public ip of provision ec2 instance
+# output "control_node_public_ip" {
+#   value = aws_instance.control_node.public_ip
+#   description = "Public IP of control_node EC2 instance"
+# }
+
+# output "managed_node_private_ip" {
+#   value = aws_instance.managed_node.*.private_ip
+#   description = "Public IP's of all managed_node EC2 instances"
+# }
 
 
