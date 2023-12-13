@@ -3,6 +3,10 @@
 # This checks OS, then assings variable "OS"
 OS=$(grep -i ^name /etc/os-release |cut -f2 -d"="|sed 's/"//g')
 
+# Checks if tf-packer key pair exists keys directory
+CKECK_KEY=$(ls ./keys/tf-packer 2>/dev/null)
+CKECK_KEY=$(echo $?)
+
 # check if packer and terraform already installed
 CHECK_PKR=$(which packer 2>/dev/null)
 CHECK_PKR=$(echo $?)
@@ -53,9 +57,9 @@ echo
 #|NOTE: This will generate the ssh-key pairs and store in keys dir
 # Comment this out if using previously generated keys or want 
 # to manually generate keys 
-if [ ! -f ./keys/tf-packer ]; then
-	ssh-keygen -t rsa -N "" -f ./keys/tf-packer
-else
+if [ $CKECK_KEY -eq 0 ]; then
 	echo "tf-packer key pairs already generated"
+else
+	ssh-keygen -t rsa -N "" -f ./keys/tf-packer
 fi
 ###################################

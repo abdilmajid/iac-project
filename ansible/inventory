@@ -1,0 +1,5 @@
+[admins]
+control
+[webservers]
+node0
+node1

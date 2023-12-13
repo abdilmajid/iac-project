@@ -169,7 +169,7 @@ filename = "private_ip"
 content = <<EOF
 ${aws_instance.control_node.private_ip}  control
 %{for index, ip in aws_instance.managed_node.*.private_ip ~}
-${ip}   node_${index}
+${ip}  node${index}
 %{ endfor ~}
 EOF
 }
@@ -179,7 +179,7 @@ filename = "public_ip"
 content = <<EOF
 ${aws_instance.control_node.public_ip}  control
 %{for index, ip in aws_instance.managed_node.*.public_ip ~}
-${ip}   node_${index}
+${ip}  node${index}
 %{ endfor ~}
 EOF
 }
