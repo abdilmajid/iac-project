@@ -2,8 +2,12 @@
 terraform/.terraform/
 terraform/.terraform.lock.hcl
 terraform/*_ip
+terraform/*.tfstate
 terraform/*.tfstate.*
 
-# private ssh-key
-tf-packer
+# ssh-keys
+keys/*
+
+# files created by terraform
+
 
