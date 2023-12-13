@@ -54,6 +54,7 @@ echo
 # Comment this out if using previously generated keys or want 
 # to manually generate keys 
 if [ ! -f ./keys/tf-packer ]; then
+	mkdir keys
 	ssh-keygen -t rsa -N "" -f ./keys/tf-packer
 else
 	echo "tf-packer key pairs already generated"
