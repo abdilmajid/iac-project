@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# grabs hostname
+CONTROL=$(grep control ../terraform/private_ip | cut -f2 -d' ')
+NODE_0=$(grep node0 ../terraform/private_ip | cut -f2 -d' ')
+NODE_1=$(grep node1 ../terraform/private_ip | cut -f2 -d' ')
+
 # grabs the public ip address and assigns to variable
 PUB_CONTROL=$(grep control ../terraform/public_ip | cut -f1 -d' ')
 PUB_NODE_0=$(grep node0 ../terraform/public_ip | cut -f1 -d' ')
@@ -21,13 +26,18 @@ else
   for i in $PUB_CONTROL $PUB_NODE_0 $PUB_NODE_1; do \
   scp -i ../keys/tf-packer ../terraform/private_ip ansible@${i}:/tmp;
   # check if ip's already appended to hosts file
-  ssh -i ../keys/tf-packer ansible@${i} "cat ~/tmp/private_ip | sudo tee -a /etc/hosts"; done
+  ssh -i ../keys/tf-packer ansible@${i} "cat /tmp/private_ip | sudo tee -a /etc/hosts"; done
 fi
 
+# here the hostname is updated so instead of seeing [ansible@[ip-10-1-...] we instead see [ansible@control ~] or [ansible@node0]...
+for i in $CONTROL $NODE_0 $NODE_1; 
+do sudo hostnamectl hostname ${i}; 
+done
 
 # Copy ansible.cfg(config) and inventory file to ansible users home directory
-for i in ansible.cfg inventory; do \
-scp -i ../keys/tf-packer ${i} ansible@${PUB_CONTROL}:~; done
+for i in ansible.cfg inventory; 
+do scp -i ../keys/tf-packer ${i} ansible@${PUB_CONTROL}:~; 
+done
 
 
 

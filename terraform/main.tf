@@ -158,6 +158,7 @@ ${aws_instance.control_node.private_ip}  control
 ${ip}  node${index}
 %{ endfor ~}
 EOF
+file_permission = "0644"
 }
 
 resource "local_file" "public_ip" {
@@ -168,6 +169,7 @@ ${aws_instance.control_node.public_ip}  control
 ${ip}  node${index}
 %{ endfor ~}
 EOF
+file_permission = "0644"
 }
 
 # # this will print out the public ip of provision ec2 instance
