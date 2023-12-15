@@ -29,15 +29,14 @@ else
   ssh -i ../keys/tf-packer ansible@${i} "cat /tmp/private_ip | sudo tee -a /etc/hosts"; done
 fi
 
-# here the hostname is updated so instead of seeing [ansible@[ip-10-1-...] we instead see [ansible@control ~] or [ansible@node0]...
-for i in $CONTROL $NODE_0 $NODE_1; 
-do sudo hostnamectl hostname ${i}; 
-done
 
 # Copy ansible.cfg(config) and inventory file to ansible users home directory
 for i in ansible.cfg inventory; 
 do scp -i ../keys/tf-packer ${i} ansible@${PUB_CONTROL}:~; 
 done
 
-
+# Check that ansible users added to each machine, and files copied to control node 
+for i in $PUB_CONTROL $PUB_NODE_0 $PUB_NODE_1; do \
+echo "${i}: $(ssh -i ../keys/tf-packer ansible@${i} 'id ansible; ls')";
+done
 
