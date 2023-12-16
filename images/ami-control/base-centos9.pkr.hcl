@@ -9,7 +9,7 @@ packer {
 
 source "amazon-ebs" "control_centos9" {
   # this will create an ami image in our "owned ami" 
-  ami_name      = "packer-control-ami-{{timestamp}}"
+  ami_name      = "pk-control-{{timestamp}}"
   instance_type = "t2.medium"
   region        = "us-east-1"
   source_ami_filter {
@@ -26,7 +26,7 @@ source "amazon-ebs" "control_centos9" {
 }
 
 build {
-  name    = "learn-packer"
+  name    = "control"
   sources = [
     "source.amazon-ebs.control_centos9"
   ]
@@ -43,6 +43,18 @@ build {
 
   provisioner "shell" {
     script = "scripts/setup.sh"
+  }
+
+  # JSON file named "manifest.json" created inside current directory
+  # File contains build artifacts 
+  post-processor "manifest" {
+    output     = "manifest.json"
+    strip_path = true
+  }
+
+
+  post-processor "shell-local" {
+    script = "ami-ctrl-update.sh"
   }
 
 }

@@ -9,7 +9,7 @@ packer {
 
 source "amazon-ebs" "managed_centos9" {
   # this will create an ami image in our "owned ami" 
-  ami_name      = "packer-managed-ami-{{timestamp}}"
+  ami_name      = "pk-managed-{{timestamp}}"
   instance_type = "t2.small"
   region        = "us-east-1"
   source_ami_filter {
@@ -26,7 +26,7 @@ source "amazon-ebs" "managed_centos9" {
 }
 
 build {
-  name    = "learn-packer"
+  name    = "managed"
   sources = [
     "source.amazon-ebs.managed_centos9"
   ]
@@ -38,6 +38,16 @@ build {
 
   provisioner "shell" {
     script = "scripts/setup.sh"
+  }
+
+  post-processor "manifest" {
+    output     = "manifest.json"
+    strip_path = true
+  }
+
+
+  post-processor "shell-local" {
+    script = "ami-man-update.sh"
   }
 
 }

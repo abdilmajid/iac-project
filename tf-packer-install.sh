@@ -48,6 +48,11 @@ terraform version
 echo  "-------------------------"
 echo 
 
+# Set up tab completion for Packer 
+packer -autocomplete-install;
+# Set up tab completion for terraform
+terraform -install-autocomplete;
+
 
 ###################################
 #|NOTE: This will generate the ssh-key pairs and store in keys dir
@@ -60,3 +65,6 @@ else
 	echo "tf-packer key pairs already generated"
 fi
 ###################################
+
+# applies packer/terraform tab completion without having to open a seperate shell
+exec bash;
