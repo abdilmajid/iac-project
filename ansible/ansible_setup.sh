@@ -35,8 +35,23 @@ for i in ansible.cfg inventory;
 do scp -i ../keys/tf-packer ${i} ansible@${PUB_CONTROL}:~; 
 done
 
-# Check that ansible users added to each machine, and files copied to control node 
-for i in $PUB_CONTROL $PUB_NODE_0 $PUB_NODE_1; do \
-echo "${i}: $(ssh -i ../keys/tf-packer ansible@${i} 'id ansible; ls')";
-done
 
+# Check that ansible users added to each machine, and files copied to control node 
+# also shows 
+for i in $PUB_CONTROL $PUB_NODE_0 $PUB_NODE_1; 
+do
+case ${i} in
+  $PUB_CONTROL)
+    echo "CONTROL(${i}): $(ssh -i ../keys/tf-packer ansible@${i} 'id ansible; ls')"
+    ;;
+  $PUB_NODE_0)
+    echo "NODE0(${i}): $(ssh -i ../keys/tf-packer ansible@${i} 'id ansible; ls')"
+    ;;
+  $PUB_NODE_1)
+    echo "NODE1(${i}): $(ssh -i ../keys/tf-packer ansible@${i} 'id ansible; ls')"
+    ;;
+  *)
+    echo "Somthing went wrong"
+    ;;
+esac
+done
