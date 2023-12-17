@@ -8,6 +8,7 @@ terraform/*.tfstate.*
 # ssh-keys
 keys/*
 
-# files created by terraform
-
+# files created by packer
+images/ami-control/manifest.json
+images/ami-managed/manifest.json
 
