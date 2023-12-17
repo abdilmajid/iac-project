@@ -8,5 +8,6 @@
 # the "wait" command will wait until process previous process done before going to next line 
 wait
 
-# # terraform initialized 
-# (cd terraform/ && terraform init && terraform validate && terraform plan)
+# terraform initialized 
+(cd terraform/ && terraform init && terraform validate) 
+(cd terraform/ && terraform plan && terraform apply --auto-approve)

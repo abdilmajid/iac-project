@@ -9,8 +9,6 @@ AMI_NAME=$(jq -r '.builds[-1].name' manifest.json)
 
 if [ $AMI_NAME == "control_centos9" ]; then
 	sed -i "/ami_control/ {n; :a; /ami-/! {N; ba;}; s/\"ami-.*\"/\"${AMI_ID}\"/; :b; n; $! bb}" ../../terraform/variables.tf
-elif [ $AMI_NAME == "managed_centos9" ]; then
-	sed -i "/ami_managed/ {n; :a; /ami-/! {N; ba;}; s/\"ami-.*\"/\"${AMI_ID}\"/; :b; n; $! bb}" ../../terraform/variables.tf
 else
   echo "Something went wrong"
 fi

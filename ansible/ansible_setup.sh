@@ -36,3 +36,8 @@ do scp -i ../keys/tf-packer ${i} ansible@${PUB_CONTROL}:~;
 done
 
 
+## Script to check acounts created and files transfered
+sh check.sh
+
+# Script to update hostnames for each instance
+sh update_hostnames.sh
