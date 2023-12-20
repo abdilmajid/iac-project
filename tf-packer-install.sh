@@ -19,7 +19,9 @@ if [ $CHECK_PKR -eq 0 ] && [ $CHECK_TF -eq 0 ]; then
 elif [ "$OS" = "Ubuntu" ] || [ "$OS" = "Debian" ]; then
 	wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 	echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-	sudo apt update && sudo apt install terraform packer
+	# jq works with json data, not installed by default in ubuntu
+	sudo apt update && sudo apt install terraform packer jq
+
 # installs terraform and packer on CentOS/RHEL
 elif [[ $OS = "Red Hat Enterprise Linux" ]] || [[ $OS = "CentOS Stream" ]] || [[ $OS = "CentOS Linux" ]] ; then
 	sudo yum install -y yum-utils
