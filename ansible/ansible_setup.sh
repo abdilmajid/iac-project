@@ -24,6 +24,8 @@ if [ $CHK_HOSTS -eq 0 ]; then
 else
   # Here we update(append) the /etc/hosts file for all provisioned instances to include the private ip's of all instances
   for i in $PUB_CONTROL $PUB_NODE_0 $PUB_NODE_1; do \
+  # here we add the public-ip's to know_hosts file
+  ssh-keyscan -H ${i} >> ~/.ssh/known_hosts
   scp -i ../keys/tf-packer ../terraform/private_ip ansible@${i}:/tmp;
   # check if ip's already appended to hosts file
   ssh -i ../keys/tf-packer ansible@${i} "cat /tmp/private_ip | sudo tee -a /etc/hosts"; done
