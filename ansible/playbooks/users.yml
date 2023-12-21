@@ -1,0 +1,9 @@
+---
+- hosts: webservers
+  become: true #|Note: ansible.cfg sets this by-default
+  tasks:
+    - name: create user "app"
+      user:
+        name: app
+        state: present
+...
