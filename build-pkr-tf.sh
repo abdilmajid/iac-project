@@ -18,8 +18,8 @@ else
 #|NOTE: the (cd ..) executes command relative to given directory, and "&" runs process in background
 (cd images/ami-control/ && packer init . && packer build .)& 
 (cd images/ami-managed/ && packer init . && packer build .)& 
-# the "wait" command will wait until previous process done before going to next line 
 fi
+# the "wait" command will wait until previous process done before going to next line 
 wait
 
 # terraform initialized 
