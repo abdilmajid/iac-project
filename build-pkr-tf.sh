@@ -10,20 +10,21 @@
 
 # If packer image already built then skips to provisioning with terraform
 # if [ $CHK_PKR_CTRL -eq 0 ] && [ $CHK_PKR_MNG -eq 0 ]; then
-if [ -e "images/ami-control/manifest.json" ] && [ -e "images/ami-managed/manifest.json" ]; then
-  echo "ami images already created";
+if [ -e "images/ami-control/manifest.json" ] && [ -e "images/ami-managed/manifest.json" ]; 
+then
+  echo "images already built";
 else
 # Packer initialized and images built concurrently,
 #|NOTE: the (cd ..) executes command relative to given directory, and "&" runs process in background
 (cd images/ami-control/ && packer init . && packer build .)& 
 (cd images/ami-managed/ && packer init . && packer build .)& 
 # the "wait" command will wait until previous process done before going to next line 
-wait
 fi
+wait
 
 # terraform initialized 
 (cd terraform/ && terraform init && terraform validate) 
 (cd terraform/ && terraform plan && terraform apply --auto-approve);
 
 echo done;
-
+#|NOTE: in VScode editor, need to open second shell because shell used to run this script will freeze when done
