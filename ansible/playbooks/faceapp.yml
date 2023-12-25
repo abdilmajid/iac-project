@@ -1,0 +1,41 @@
+---
+- hosts: node1
+  become: yes
+  vars:
+    packages:
+      - git
+      - podman
+      - python3-pip
+      - firewalld
+    services:
+      - firewalld
+      - cockpit
+  tasks:
+    - name: create app user
+      user:
+        name: app
+        state: present
+    - name: install packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}"
+    - name: check that pip3 available
+      shell: which pip3
+      register: pip_installed
+    - name: install podman-compose
+      shell: pip3 install podman-compose
+      when: pip_installed.rc == 0
+    - name: start & enable cockpit and firewalld service
+      block:
+        - service:
+            name: "{{ item }}"
+            state: started
+            enabled: yes
+          loop: "{{ services }}"
+        - debug: msg="services available"
+      rescue:
+        - debug: msg="Something when wrong"
+      always:
+        - debug: msg="Attempt completed"
+...
