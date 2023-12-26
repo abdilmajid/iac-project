@@ -7,9 +7,16 @@
       - podman
       - python3-pip
       - firewalld
+      - nodejs
     services:
       - firewalld
       - cockpit
+    port_list:
+      - 80/tcp
+      - 3000/tcp
+      - 3001/tcp
+      - 9090/tcp
+      - 5432/tcp
   tasks:
     - name: create app user
       user:
@@ -38,4 +45,17 @@
         - debug: msg="Something when wrong"
       always:
         - debug: msg="Attempt completed"
+    - name: open ports
+      firewalld:
+        port: "{{ item }}"
+        permanent: true
+        state: enabled
+      loop: "{{ port_list }}"
+      notify: restart firewalld
+  
+  handlers:
+    - name: restart firewalld
+      service:
+        name: firewalld
+        state: reloaded
 ...
