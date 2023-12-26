@@ -52,10 +52,28 @@
         state: enabled
       loop: "{{ port_list }}"
       notify: restart firewalld
-  
+    - name: clone repo
+      git:
+        repo: https://github.com/abdilmajid/faceapp-docker.git
+        dest: /home/app/faceapp
+    - name: update owner  
+      shell: sudo chown -R app:app /home/app/faceapp
+    - name: update context
+      shell: sudo semanage fcontext -a -t container_file_t "/home/app/faceapp(/.*)?"
+      notify: context changed
+    - name: check linger status
+      shell: sudo loginctl show-user app | grep Linger | cut -f1 -d'='
+      register: linger_check
+    - name: enable linger
+      shell: sudo loginctl enable-linger app
+      when: linger_check.stdout != "yes"
+
+
   handlers:
     - name: restart firewalld
       service:
         name: firewalld
         state: reloaded
+    - name: context changed
+      shell: sudo restorecon -R -v /home/app/faceapp
 ...
