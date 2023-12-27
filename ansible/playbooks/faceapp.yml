@@ -1,22 +1,6 @@
 ---
 - hosts: node1
   become: yes
-  vars:
-    packages:
-      - git
-      - podman
-      - python3-pip
-      - firewalld
-      - nodejs
-    services:
-      - firewalld
-      - cockpit
-    port_list:
-      - 80/tcp
-      - 3000/tcp
-      - 3001/tcp
-      - 9090/tcp
-      - 5432/tcp
   tasks:
     - name: create app user
       user:
@@ -52,15 +36,28 @@
         state: enabled
       loop: "{{ port_list }}"
       notify: restart firewalld
+    - name: check if repo already cloned
+      shell: ls /home/app/faceapp
+      register: check_repo
     - name: clone repo
       git:
         repo: https://github.com/abdilmajid/faceapp-docker.git
         dest: /home/app/faceapp
+      when: check_repo.rc != 0
+    - name: check dir ownership
+      shell: ls -la|grep faceapp |awk '{print $3}'
+      register: dir_owner
     - name: update owner  
       shell: sudo chown -R app:app /home/app/faceapp
+      when: dir_owner.stdout != "app"
+    - name: check folder context
+      shell: ls -laZ /home/app/faceapp | grep container_file_t
+      register: dir_context
+      ignore_errors: yes
     - name: update context
       shell: sudo semanage fcontext -a -t container_file_t "/home/app/faceapp(/.*)?"
       notify: context changed
+      when: dir_context.rc != 0
     - name: check linger status
       shell: sudo loginctl show-user app | grep Linger | cut -f1 -d'='
       register: linger_check

@@ -1,0 +1,76 @@
+---
+- hosts: web2
+  become: yes
+  tasks:
+    - name: create app user
+      user:
+        name: app
+        state: present
+    - name: install packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}"
+    - name: check that pip3 available
+      shell: which pip3
+      register: pip_installed
+    - name: install podman-compose
+      shell: pip3 install podman-compose
+      when: pip_installed.rc == 0
+    - name: start & enable cockpit and firewalld service
+      block:
+        - service:
+            name: "{{ item }}"
+            state: started
+            enabled: yes
+          loop: "{{ services }}"
+        - debug: msg="services available"
+      rescue:
+        - debug: msg="Something when wrong"
+      always:
+        - debug: msg="Attempt completed"
+    - name: open ports
+      firewalld:
+        port: "{{ item }}"
+        permanent: true
+        state: enabled
+      loop: "{{ port_list }}"
+      notify: restart firewalld
+    - name: check if repo already cloned
+      shell: ls /home/app/storeapp
+      register: check_repo
+    - name: clone repo
+      git:
+        repo: https://github.com/abdilmajid/storeapp-docker.git
+        dest: /home/app/storeapp
+      when: check_repo.rc != 0
+    - name: check dir ownership
+      shell: ls -la|grep storeapp|awk '{print $3}'
+      register: dir_owner
+    - name: update owner  
+      shell: sudo chown -R app:app /home/app/storeapp
+      when: dir_owner.stdout != "app"
+    - name: check folder context
+      shell: ls -laZ /home/app/storeapp | grep container_file_t
+      register: dir_context
+      ignore_errors: yes
+    - name: update context
+      shell: sudo semanage fcontext -a -t container_file_t "/home/app/storeapp(/.*)?"
+      notify: context changed
+      when: dir_context.rc != 0
+    - name: check linger status
+      shell: sudo loginctl show-user app | grep Linger | cut -f1 -d'='
+      register: linger_check
+    - name: enable linger
+      shell: sudo loginctl enable-linger app
+      when: linger_check.stdout != "yes"
+
+
+  handlers:
+    - name: restart firewalld
+      service:
+        name: firewalld
+        state: reloaded
+    - name: context changed
+      shell: sudo restorecon -R -v /home/app/storeapp
+...
