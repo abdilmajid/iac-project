@@ -1,11 +1,15 @@
 ---
-- hosts: web2
+- hosts: node2
   become: yes
   tasks:
     - name: create app user
       user:
         name: app
+        groups: wheel
         state: present
+        # encrypted pass is "pass"
+        # openssl passwd -1 pass
+        password: $1$9IxS4KfB$gNV0GShx5ue6.eSzDNqu./
     - name: install packages
       yum:
         name: "{{ item }}"
@@ -39,6 +43,7 @@
     - name: check if repo already cloned
       shell: ls /home/app/storeapp
       register: check_repo
+      ignore_errors: yes
     - name: clone repo
       git:
         repo: https://github.com/abdilmajid/storeapp-docker.git
