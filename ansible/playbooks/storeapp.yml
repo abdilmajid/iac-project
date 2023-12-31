@@ -21,6 +21,13 @@
     - name: install podman-compose
       shell: pip3 install podman-compose
       when: pip_installed.rc == 0
+    # - name: check that nodejs installed
+    #   shell: which node
+    #   register: node_chk
+    #   ignore_errors: yes
+    # - name: install yarn
+    #   shell: sudo npm install --global yarn
+    #   when: node_chk.rc == 0
     - name: start & enable cockpit and firewalld service
       block:
         - service:
@@ -46,7 +53,7 @@
       ignore_errors: yes
     - name: clone repo
       git:
-        repo: https://github.com/abdilmajid/storeapp-docker.git
+        repo: https://github.com/abdilmajid/storeapp.git
         dest: /home/app/storeapp
       when: check_repo.rc != 0
     - name: check dir ownership
@@ -59,7 +66,7 @@
       shell: ls -laZ /home/app/storeapp | grep container_file_t
       register: dir_context
       ignore_errors: yes
-    - name: update context
+    - name: update context type
       shell: sudo semanage fcontext -a -t container_file_t "/home/app/storeapp(/.*)?"
       notify: context changed
       when: dir_context.rc != 0

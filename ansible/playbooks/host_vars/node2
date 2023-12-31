@@ -13,3 +13,4 @@ port_list:
   - 4001/tcp
   - 9090/tcp
   - 5432/tcp
+  - 8080/tcp
