@@ -1,6 +1,10 @@
 ---
 - hosts: node1
   become: yes
+  vars:
+    files:
+      - /home/app/storeapp/store-api/Containerfile
+      - /home/app/storeapp/store-web/Containerfile
   tasks:
     - name: create app user
       user:
@@ -46,9 +50,15 @@
       ignore_errors: yes
     - name: clone repo
       git:
-        repo: https://github.com/abdilmajid/faceapp-docker.git
+        repo: https://github.com/abdilmajid/faceapp.git
         dest: /home/app/faceapp
       when: check_repo.rc != 0
+    - name: update Containerfiles
+      replace:
+        path: "{{ item }}"
+        regexp: '192.168.50.5'
+        replace: "{{ ansible_default_ipv4.address }}"
+      loop: "{{ files }}"
     - name: check dir ownership
       shell: ls -la|grep faceapp |awk '{print $3}'
       register: dir_owner
@@ -59,7 +69,7 @@
       shell: ls -laZ /home/app/faceapp | grep container_file_t
       register: dir_context
       ignore_errors: yes
-    - name: update context
+    - name: update context type
       shell: sudo semanage fcontext -a -t container_file_t "/home/app/faceapp(/.*)?"
       notify: context changed
       when: dir_context.rc != 0

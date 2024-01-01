@@ -1,6 +1,10 @@
 ---
 - hosts: node2
   become: yes
+  vars:
+    files:
+      - /home/app/storeapp/store-api/Containerfile
+      - /home/app/storeapp/store-web/Containerfile
   tasks:
     - name: create app user
       user:
@@ -21,13 +25,6 @@
     - name: install podman-compose
       shell: pip3 install podman-compose
       when: pip_installed.rc == 0
-    # - name: check that nodejs installed
-    #   shell: which node
-    #   register: node_chk
-    #   ignore_errors: yes
-    # - name: install yarn
-    #   shell: sudo npm install --global yarn
-    #   when: node_chk.rc == 0
     - name: start & enable cockpit and firewalld service
       block:
         - service:
@@ -56,10 +53,16 @@
         repo: https://github.com/abdilmajid/storeapp.git
         dest: /home/app/storeapp
       when: check_repo.rc != 0
+    - name: update Containerfiles
+      replace:
+        path: "{{ item }}"
+        regexp: '192.168.50.5'
+        replace: "{{ ansible_default_ipv4.address }}"
+      loop: "{{ files }}"
     - name: check dir ownership
       shell: ls -la|grep storeapp|awk '{print $3}'
       register: dir_owner
-    - name: update owner  
+    - name: update owner
       shell: sudo chown -R app:app /home/app/storeapp
       when: dir_owner.stdout != "app"
     - name: check folder context
