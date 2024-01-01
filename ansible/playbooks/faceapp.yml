@@ -1,5 +1,5 @@
 ---
-- hosts: node1
+- hosts: node0
   become: yes
   vars:
     files:

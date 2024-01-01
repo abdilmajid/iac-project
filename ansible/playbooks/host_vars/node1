@@ -4,12 +4,15 @@ packages:
   - python3-pip
   - firewalld
   - nodejs
+  - cockpit
+  - cockpit-podman
 services:
   - firewalld
   - cockpit
 port_list:
   - 80/tcp
-  - 3000/tcp
-  - 3001/tcp
+  - 4000/tcp
+  - 4001/tcp
   - 9090/tcp
   - 5432/tcp
+  - 8080/tcp
