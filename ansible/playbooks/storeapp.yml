@@ -71,7 +71,10 @@
       ignore_errors: yes
     - name: update context type
       shell: sudo semanage fcontext -a -t container_file_t "/home/app/storeapp(/.*)?"
-      notify: context changed
+      ignore_errors: yes
+      when: dir_context.rc != 0
+    - name: context changed
+      shell: sudo restorecon -R -v /home/app/storeapp
       when: dir_context.rc != 0
     - name: check linger status
       shell: sudo loginctl show-user app | grep Linger | cut -f1 -d'='
@@ -86,6 +89,4 @@
       service:
         name: firewalld
         state: reloaded
-    - name: context changed
-      shell: sudo restorecon -R -v /home/app/storeapp
 ...
