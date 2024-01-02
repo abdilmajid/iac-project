@@ -10,7 +10,7 @@ packer {
 source "amazon-ebs" "managed_centos9" {
   # this will create an ami image in our "owned ami" 
   ami_name      = "pk-managed-{{timestamp}}"
-  instance_type = "t2.small"
+  instance_type = "t2.medium"
   region        = "us-east-1"
   source_ami_filter {
     filters = {

@@ -156,7 +156,7 @@ resource "aws_instance" "managed_node" {
   count = 2
   # ami from packer build
   ami                         = var.ami_managed
-  instance_type               = "t2.small"
+  instance_type               = "t2.medium"
   subnet_id                   = aws_subnet.subnet_public.id
   vpc_security_group_ids      = [aws_security_group.sg_managed.id]
   associate_public_ip_address = true

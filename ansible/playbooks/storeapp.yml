@@ -53,11 +53,14 @@
         repo: https://github.com/abdilmajid/storeapp.git
         dest: /home/app/storeapp
       when: check_repo.rc != 0
+    - name: store public ip address in variable "pub_ip"
+      shell: grep node1 /etc/hosts | cut -f1 -d' '
+      register: pub_ip
     - name: update Containerfiles
       replace:
         path: "{{ item }}"
         regexp: '192.168.50.5'
-        replace: "{{ ansible_default_ipv4.address }}"
+        replace: "{{ pub_ip.stdout }}"
       loop: "{{ files }}"
     - name: check dir ownership
       shell: ls -la|grep storeapp|awk '{print $3}'

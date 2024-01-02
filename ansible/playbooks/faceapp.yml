@@ -53,6 +53,15 @@
         repo: https://github.com/abdilmajid/faceapp.git
         dest: /home/app/faceapp
       when: check_repo.rc != 0
+    - name: store public ip address in variable "pub_ip"
+      shell: grep node0 /etc/hosts | cut -f1 -d' '
+      register: pub_ip
+    - name: update Containerfiles
+      replace:
+        path: "{{ item }}"
+        regexp: '192.168.50.5'
+        replace: "{{ pub_ip.stdout }}"
+      loop: "{{ files }}"
     - name: update Containerfiles
       replace:
         path: "{{ item }}"
