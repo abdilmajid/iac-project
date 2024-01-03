@@ -1,4 +1,5 @@
 packages:
+  - vim
   - git
   - podman
   - python3-pip
