@@ -26,12 +26,12 @@ elif [ "$OS" = "Ubuntu" ] || [ "$OS" = "Debian" ]; then
 elif [[ $OS = "Red Hat Enterprise Linux" ]] || [[ $OS = "CentOS Stream" ]] || [[ $OS = "CentOS Linux" ]] ; then
 	sudo yum install -y yum-utils
 	sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
-	sudo yum -y install terraform packer
+	sudo yum -y install terraform packer jq
 # installs terraform/packer on AMZ Linux OS
 elif [[ $OS = "Amazon Linux" ]]; then
 	sudo yum install -y yum-utils shadow-utils
 	sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-	sudo yum -y install terraform packer
+	sudo yum -y install terraform packer jq
 else
 	echo "Sorry, cant run this script"
 fi
