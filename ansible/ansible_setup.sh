@@ -40,7 +40,8 @@ copy_playbook (){
 }
 
 copy_files () {
-  for i in files/{.vimrc,ansible.cfg,inventory}; do \
+  # for i in files/{.vimrc,ansible.cfg,inventory}; do \
+  for i in files/.vimrc files/ansible.cfg files/inventory; do \
     scp -i ../keys/tf-packer ${i} ansible@$PUB_CONTROL:~;
   done;
 }
