@@ -214,11 +214,11 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
 - The faceapp playbook will install/enable Cockpit with the podman extension. This allows you to more easily monitor podman containers on a web-browser. So on a browser go to “**http://<PUBLIC_IP_NODE0>:9090**”, the user name is “**app**” and password is “**pass**”
 
   ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP6b.gif)
-    
+
 - Now we can check to see if faceapp is running, so on the bowser go to “**http://<PUBLIC_IP_NODE0>:3000**”
 
   ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP6c.gif)
-    
+
 - To destroy the containers we need to run the command “podman-compose down”, then “podman system prune -all” to remove everything including any attached volumes/networks etc…
 
   ```bash
@@ -227,7 +227,7 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
   ```
 
   ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP7a.gif)
-    
+
 - To bring down the AWS infrastructure we would just need to go exit out of the control/managed nodes, then inside the “**iac-project**” directory we cd into the terraform directory, then inside the terraform directory we run the command “terraform down”
 
   ```bash
@@ -239,7 +239,7 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
   ```
 
   ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP7b.gif)
-    
+
 - Check that instance where destroyed on the AWS dashboard
-    
-    ![PNG](https://s3.ca-central-1.amazonaws.com/abdil.ca/Step7.png)
+  
+  ![PNG](https://s3.ca-central-1.amazonaws.com/abdil.ca/Step7.png)
