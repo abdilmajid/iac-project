@@ -1,104 +1,117 @@
+This project aims to use IAC(Infrastructure as code) to provision and manage AWS resources. Some tools that will be used include Terraform, Packer, Ansible, Podman/Docker, Cockpit, etc..
+> **Note:** This repo is was set up to run on RedHat/Centos, Ubuntu, and AWS Linux 2 Operating Systems
+
+## Table Of Content
+[STEP 1: Get AWS Credentials](#step-1-get-aws-credentials)<br>
+[STEP 2: Storing credentials](#step-2-storing-credentials)<br>
+[STEP 3: Clone Repo + Install Terraform/Packer](#step-3-clone-repo--install-terraformpacker)<br>
+[STEP 4: Build Packer images](#step-4-build-packer-images)<br>
+[STEP 5: Build AWS Infrastructure with Terraform](#step-5-build-aws-infrastructure-with-terraform)<br>
+[STEP 6: Ansible Setup](#step-6-ansible-setup)<br>
+[STEP 7: Podman/Docker Setup](#step-7-podmandocker-setup)<br>
+
+
 ## STEP 1: Get AWS Credentials
 
-- To access/set up AWS services remotely, we need to have access keys, So IAM(Identity and Access Management) should be set where the user has "**AdministratorAccess**" in "**Permissions Policies.**" For security purposes, a new IAM role with only the permissions needed to access resources used in Terraform/Packer should be created, then attach that new role to the user account
-    
-    > **Note:** Also, new access keys should be generate
-    > 
-<br>
+To access/set up AWS services remotely, we need to have access keys, So IAM(Identity and Access Management) should be set where the user has **AdministratorAccess** in **Permissions Policies.** For security purposes, a new IAM role with only the permissions needed to access resources used in Terraform/Packer should be created, then attach that new role to the user account
+> **Note:** New access keys should be generate
+> 
 
-**Method 1:** Using AWS CLI
+
+### **Method 1:** Using AWS CLI
 https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.html
 
-**Method 2:** Using AWS Dashboard
- - Login to AWS account, then go to the search bar and type “**IAM**”
- - Then click Users, then choose one of the users under “**User name**”
-     > ** Note:** Make sure the user selected has the necessary permissions, so they should have "**AdministratorAccess**" in "**Permissions policies**”
-     >
- - Then click “**Create access key**”, then click “**Other**” and then Next
- - Then click “**Create access key**”
- - Then click “**Download .csv file**” or copy the “**Access key**” and “**Secret access key**”
-    |Note: If you click done without saving the keys, you will need to create new keys
+### **Method 2:** Using AWS Dashboard
 
+1. Login to AWS account, then go to the search bar and type “**IAM**”
+2. Then click Users, then choose one of the users under “**User name**”
+     > Note: Make sure the user selected has the necessary permissions, so they should have **AdministratorAccess** in **Permissions policies**
+     >
+ 3. Then click “**Create access key**”, then click “**Other**” and then Next
+ 4. Then click “**Create access key**”
+ 5. Then click “**Download .csv file**” or copy the “**Access key**” and “**Secret access key**”
+    > Note: If you click done without saving the keys, you will need to create new keys
+    >
+    
     ![GIF](readme/gscl_Step1.gif)
     
 <br>
 
 ## STEP 2: Storing credentials
 
-- When we run Terraform/Packer, we need to validate our AWS credentials. We could do this in many ways, like using environment variables, but here, we will use an AWS credentials directory.
+When we run Terraform/Packer, we need to validate our AWS credentials. We could do this in many ways, like using environment variables, but here, we will use an AWS credentials directory.
 
-    1. Create an AWS credentials directory in the user's home directory.
+1. Create an AWS credentials directory in the user's home directory.
         
-        ```bash
-        [user@local ~]$ mkdir ~/.aws
-        ```
+    ```bash
+    [user@local ~]$ mkdir ~/.aws
+    ```
         
-    2. Create 2 files *~/.aws/config* and *~/.aws/credentials*
+2. Create 2 files *~/.aws/config* and *~/.aws/credentials*
         
-        ```bash
-        [user@local ~]$ touch ~/.aws/{config,credentials}
-        ```
+    ```bash
+    [user@local ~]$ touch ~/.aws/{config,credentials}
+    ```
         
-    3. Inside the “**config**” file, we add our default region(which will be **us-east-1**), and the “**credentials**” file will contain the AWS Credentials(Access key, Secret access key) we saved from **STEP 1**.
-        
-        ```bash
-        # Config FILE
-        [user@local~]$ cat > ~/.aws/config <<EOF
-        [default]
-        region="us-east-1"
-        EOF
-        
-        # Credentials FILE
-        [user@local~]$ cat > ~/.aws/credentials <<EOF
-        [default]
-        aws_access_key_id=<ACCESS-KEY>
-        aws_secret_access_key=<SECRET-ACCESS-KEY>
-        EOF
-        ```
+3. Inside the **config** file, we add our default region(which will be **us-east-1**), and the **credentials** file will contain the AWS Credentials(Access key, Secret access key) we saved from **STEP 1**.
+
+    ```bash
+    # Config FILE
+    [user@local~]$ cat > ~/.aws/config <<EOF
+    [default]
+    region="us-east-1"
+    EOF
+
+    # Credentials FILE
+    [user@local~]$ cat > ~/.aws/credentials <<EOF
+    [default]
+    aws_access_key_id=<ACCESS-KEY>
+    aws_secret_access_key=<SECRET-ACCESS-KEY>
+    EOF
+    ```
 <br> 
 
 ## STEP 3: Clone Repo + Install Terraform/Packer
 
 - After setting up the Credentials/Config files we can clone the iac-project repo
     
-    ```bash
-    [user@local ~]$ git clone https://github.com/abdilmajid/iac-project.git
-    ```
+   ```bash
+   [user@local ~]$ git clone https://github.com/abdilmajid/iac-project.git
+   ```
     
-- cd into the "**iac-project**" directory and execute the "**tf-packer-install.sh**" script
+- cd into the **iac-project** directory and execute the **tf-packer-install.sh** script
     
-    ```bash
-    [user@local ~]$ cd ~/iac-project/
-    [user@local iac-project]$ sh ~/iac-project/tf-packer-install.sh
-    ```
+   ```bash
+   [user@local ~]$ cd ~/iac-project/
+   [user@local iac-project]$ sh ~/iac-project/tf-packer-install.sh
+   ```
     
-    > **Note:** the script will install Terraform/Packer if packages not already installed, and also create and store ssh-keys inside a folder called “**keys**”
-    
+   > **Note:** the script will install Terraform/Packer if packages not already installed, and also create and store ssh-keys inside a folder called “**keys**”
     > 
 
-    ![GIF](readme/Step3.gif)
+   ![GIF](readme/Step3.gif)
         
 <br>
 
-## STEP 4: Build packer images
+## STEP 4: Build Packer images
 
 - After setting up the AWS credentials and installing Terraform/Packer, we can start building the AMI(Amazon Machine Image) that Terraform will use when setting up the EC2 instance
     
-    > **Note:** You can run the "**build-pkr-tf.sh**" script, which will build the Packer images and then copies the AMI's to a file which is then used to set up the AWS infrastructure using Terraform.
+    > **Note:** You can run the "**build-pkr-tf.sh**" script, which builds the Packer images, then copies the AMI names to a file used to set up the AWS infrastructure.
     > 
 <br>
 
 - The base image is "**CentOS Stream 9 x86_64**"(https://www.centos.org/download/aws-images/)
-- 2 images are created, "**control**" and "**managed**" both images will have a new user added with the name "**ansible**", and the "**control**" image will have the "**ansible**" package installed.
+- 2 images are created, **control** and **managed**, both images will have a new user added with the name **ansible**, and the **control** image will have the **ansible** package installed.
 - both images will also have all necessary permissions and keys setup
-- cd into the images directory, then initialize Packer
+1. cd into the images directory, then initialize Packer
     
     ```bash
     [user@local iac-project]$ cd ~/iac-project/images/
     [user@local images]$ packer init .
     ```
     
-- then cd into “**ami-control**” directory and run the command “**packer build .**”, this command will use packer to build the AMI(amazon managed image) for the control node
+2. Then cd into “**ami-control**” directory and run the command “**packer build .**”, this command will use packer to build the AMI(amazon managed image) for the control node
     
     ```bash
     [user@local images]$ cd ~/iac-project/images/ami-control/
@@ -110,7 +123,7 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
 
 <br>
 
-- then, cd into the **ami-managed** directory and run the same command, “**packer build .**” this will build the AMI for the managed node
+3. Then, cd into the **ami-managed** directory and run the same command, “**packer build .**” this will build the AMI for the managed node
     
     ```bash
     [user@local ami-control]$ cd ~/iac-project/images/ami-managed/
@@ -130,7 +143,7 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
 
 ## STEP 5: Build AWS Infrastructure with Terraform
 
-- Once we have the two AMI images built with Packer, we need to copy them to the "**variables.tf**" file inside the Terraform directory.
+- Once we have the two AMI images built with Packer, we need to copy them to the **variables.tf** file inside the Terraform directory.
     
     > **Note:** The AMI’s built with packer should already be copied into the variables.tf file. So just check that the values are correct
     > 
@@ -142,9 +155,14 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     [user@local~]$ cd ~/iac-project/terraform/
     ```
     
-- Inside the terraform directory go to the "**variables.tf**" file, this file is where we store variables we want to use inside our "**main.tf**" file. The AMI’s created using packer should be stored inside the variables "**ami_control**" and "**ami_managed**"
+- Inside the terraform directory go to the **variables.tf** file, this file is where we store variables we want to use inside our **main.tf** file. The AMI’s created using packer should be stored inside the variables **ami_control** and **ami_managed**
 
-- Now we can build the AWS infrastructure, so inside the terraform directory, we initialize, validate, plan, then apply
+- Now we can build the AWS infrastructure, 
+- Inside the terraform directory, run 
+    1. terraform init 
+    2. terraform validate
+    3. terraform plan
+    4. terraform apply -auto-approve
 
     ```bash
     [user@local terraform]$ terraform init
@@ -159,26 +177,27 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
 
 ## STEP 6: Ansible Setup
 
-- The AWS Infrastructure should be setup so that 3 EC2 instances are running, one instance will be the control node which we will use to manage the other 2 instance which will be our managed nodes
-- we will be using ansible inside the control node to manage the other instances
+- The AWS Infrastructure should be setup so that 3 EC2 instances are running, one instance will be the control node which is used to manage the other 2 instance(managed nodes)
+- Ansible is used inside the control node to manage the 2 instances
     
     ![PNG](readme/Step6a.png)
     
-    > **Note:** Before running anything we need to make sure that our instances are complete. On the aws dashboard we need to see that “**Status check**” shows “**2/2 checks passed**” for all instances.
+    > **Note:** Before running anything we need to make sure that all instances are complete. On the aws dashboard we need to see that “**Status check**” shows “**2/2 checks passed**” for all instances.
     > 
     <br>
 
     ![PNG](readme/Step6b.png)
     
-- cd into ansible directory, then run “**ansible_setup.sh**” file
+1. cd into ansible directory, 
+2. Then run “**ansible_setup.sh**” file
     
     ```bash
     [user@local~]$ cd ~/iac-project/ansible/
     [user@local ansible]$ sh ansible_setup.sh
     ```
     
-- The “**ansible_setup.sh**” script will configure all 3 instance so that we can ssh into the control node and manage everything
-- Now we can ssh into the control node and test that we can reach our managed nodes
+- The “**ansible_setup.sh**” script will configure all 3 instance so that we can SSH into the control node and manage everything
+- Now we can SSH into the control node and test that we can reach our managed nodes
     
     > **Note:** the stdout from running the script should display the public ip address of the control node. This public ip is also available on the aws dashboard or the file created in the terraform directory(~/iac-project/terraform/public_ip)
     > 
