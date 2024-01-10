@@ -1,9 +1,10 @@
-### STEP 1: Get AWS Credentials
+## STEP 1: Get AWS Credentials
 
-- To access/set up AWS services remotely, we need to have access keys, So IAM(Identity and Access Management) should be set where the user has "**AdministratorAccess**" in "**Permissions Policies.**" For security purposes, you should create a new IAM role with only the permissions needed to access resources used in Terraform/Packer, then attach that new role to the user account
+- To access/set up AWS services remotely, we need to have access keys, So IAM(Identity and Access Management) should be set where the user has "**AdministratorAccess**" in "**Permissions Policies.**" For security purposes, a new IAM role with only the permissions needed to access resources used in Terraform/Packer should be created, then attach that new role to the user account
     
-    > **Note:** Also, you should generate new access keys
+    > **Note:** Also, new access keys should be generate
     > 
+<br>
 
 **Method 1:** Using AWS CLI
 https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.html
@@ -18,12 +19,14 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
  - Then click “**Download .csv file**” or copy the “**Access key**” and “**Secret access key**”
     |Note: If you click done without saving the keys, you will need to create new keys
 
-- ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_Step1.gif)
+    ![GIF](readme/gscl_Step1.gif)
     
+<br>
 
-### STEP 2: Storing credentials
+## STEP 2: Storing credentials
 
 - When we run Terraform/Packer, we need to validate our AWS credentials. We could do this in many ways, like using environment variables, but here, we will use an AWS credentials directory.
+
     1. Create an AWS credentials directory in the user's home directory.
         
         ```bash
@@ -52,9 +55,9 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
         aws_secret_access_key=<SECRET-ACCESS-KEY>
         EOF
         ```
-        
+<br> 
 
-### STEP 3: Clone Repo + Install Terraform/Packer
+## STEP 3: Clone Repo + Install Terraform/Packer
 
 - After setting up the Credentials/Config files we can clone the iac-project repo
     
@@ -70,17 +73,21 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     ```
     
     > **Note:** the script will install Terraform/Packer if packages not already installed, and also create and store ssh-keys inside a folder called “**keys**”
+    
     > 
 
-    ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/Step3.gif)
+    ![GIF](readme/Step3.gif)
         
+<br>
 
-### STEP 4: Build packer images
+## STEP 4: Build packer images
 
 - After setting up the AWS credentials and installing Terraform/Packer, we can start building the AMI(Amazon Machine Image) that Terraform will use when setting up the EC2 instance
     
     > **Note:** You can run the "**build-pkr-tf.sh**" script, which will build the Packer images and then copies the AMI's to a file which is then used to set up the AWS infrastructure using Terraform.
     > 
+<br>
+
 - The base image is "**CentOS Stream 9 x86_64**"(https://www.centos.org/download/aws-images/)
 - 2 images are created, "**control**" and "**managed**" both images will have a new user added with the name "**ansible**", and the "**control**" image will have the "**ansible**" package installed.
 - both images will also have all necessary permissions and keys setup
@@ -100,6 +107,9 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     
     > **Note:** Check the aws dashboard to see that **ami-control** was built
     > 
+
+<br>
+
 - then, cd into the **ami-managed** directory and run the same command, “**packer build .**” this will build the AMI for the managed node
     
     ```bash
@@ -109,17 +119,22 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     
     > **Note:** Open a second terminal and run the command because it could take ~10min for each image to build, so to save time, they should be run concurrently
     > 
+
+<br>
+
 - Once the builds are complete, we should see a message in the terminal containing the new AMI's. These AMI's will also be displayed on the AWS dashboard inside **EC2 > Images > AMIs > Owned by me**
 
-  ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP4.gif)
+  ![GIF](readme/gscl_STEP4.gif)
         
+<br>
 
-### STEP 5: Build AWS Infrastructure with Terraform
+## STEP 5: Build AWS Infrastructure with Terraform
 
 - Once we have the two AMI images built with Packer, we need to copy them to the "**variables.tf**" file inside the Terraform directory.
     
     > **Note:** The AMI’s built with packer should already be copied into the variables.tf file. So just check that the values are correct
     > 
+<br>
 
 - cd into the terraform directory
     
@@ -138,20 +153,22 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     [user@local terraform]$ terraform apply -auto-approve
     ```
 
-  ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP5.gif)
+  ![GIF](readme/gscl_STEP5.gif)
     
+<br>
 
-### STEP 6: Ansible Setup
+## STEP 6: Ansible Setup
 
 - The AWS Infrastructure should be setup so that 3 EC2 instances are running, one instance will be the control node which we will use to manage the other 2 instance which will be our managed nodes
 - we will be using ansible inside the control node to manage the other instances
     
-    ![PNG](https://s3.ca-central-1.amazonaws.com/abdil.ca/Step6a.png)
+    ![PNG](readme/Step6a.png)
     
     > **Note:** Before running anything we need to make sure that our instances are complete. On the aws dashboard we need to see that “**Status check**” shows “**2/2 checks passed**” for all instances.
     > 
-    
-    ![PNG](https://s3.ca-central-1.amazonaws.com/abdil.ca/Step6b.png)
+    <br>
+
+    ![PNG](readme/Step6b.png)
     
 - cd into ansible directory, then run “**ansible_setup.sh**” file
     
@@ -165,17 +182,19 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     
     > **Note:** the stdout from running the script should display the public ip address of the control node. This public ip is also available on the aws dashboard or the file created in the terraform directory(~/iac-project/terraform/public_ip)
     > 
-    
+   
+
     ```bash
     [user@local ansible]$ ssh -i ~/iac-project/keys/tf-packer ansible@<IP_CONTROL_NODE>
     [ansible@control~]$ ansible -m ping node0
     [ansible@control~]$ ansible -m ping node1
     ```
     
-    ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP6.gif)
+    ![GIF](readme/gscl_STEP6.gif)
         
+<br>
 
-### STEP 7: Podman/Docker Setup
+## STEP 7: Podman/Docker Setup
 
 - Inside the control node, we will use the “**ansible-playbook**” command to set up and run the “**faceapp**” application on one managed node and “**storeapp**” on the other.
 - run “ansible-playbook ~/playbooks/faceapp.yml” command
@@ -186,8 +205,11 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     
     > **Note:** This will create the user “**app**” inside the **node0** managed node and install all packages/repos repos needed, etc…
     > 
-  ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP6a.gif)
-    
+  
+  ![GIF](readme/gscl_STEP6a.gif)
+
+  <br>
+
 - Now we need to SSH into “**node0**” in order to run the podman containers, so we SSH into “**node0”**, then switch to the app user, then cd into the faceapp directory, then we run the “**podman-compose**” command
     
     ```bash
@@ -199,6 +221,7 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     
     > **Note:** All ssh-keys, config/hosts files, etc.. are set up so we can SSH from the control node to each managed node
     > 
+<br>
 
 - The podman-compose command will use “**faceapp.ym**l” build the faceapp application
 - When the build is complete we can check to see if containers are running by running “podman-compose ps” command on the terminal, or by using the cockpit wed-interface
@@ -209,15 +232,22 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
     
     > **Note:** make sure to run commands inside “**faceapp**” folder
     > 
-    ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP6ab.gif)
-        
-- The faceapp playbook will install/enable Cockpit with the podman extension. This allows you to more easily monitor podman containers on a web-browser. So on a browser go to “**http://<PUBLIC_IP_NODE0>:9090**”, the user name is “**app**” and password is “**pass**”
+    ![GIF](readme/gscl_STEP6ab.gif)
 
-  ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP6b.gif)
+     <br>
+
+- The faceapp playbook will install/enable Cockpit with the podman extension. This allows us to more easily monitor podman containers on a web-browser. So on a browser go to “**http://<PUBLIC_IP_NODE0>:9090**”, the user name is “**app**” and password is “**pass**”
+
+  ![GIF](readme/gscl_STEP6b.gif)
+
+<br>
 
 - Now we can check to see if faceapp is running, so on the bowser go to “**http://<PUBLIC_IP_NODE0>:3000**”
 
-  ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP6c.gif)
+  ![GIF](readme/gscl_STEP6c.gif)
+
+<br>
+
 
 - To destroy the containers we need to run the command “podman-compose down”, then “podman system prune -all” to remove everything including any attached volumes/networks etc…
 
@@ -226,9 +256,12 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
   [app@node0 faceapp]$ podman systemc prune -all
   ```
 
-  ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP7a.gif)
+  ![GIF](readme/gscl_STEP7a.gif)
 
-- To bring down the AWS infrastructure we would just need to go exit out of the control/managed nodes, then inside the “**iac-project**” directory we cd into the terraform directory, then inside the terraform directory we run the command “terraform down”
+<br>
+
+
+- To bring down the AWS infrastructure we would exit out of the control/managed nodes, then inside the “**iac-project**” directory we would cd into the terraform directory, then inside the terraform directory we would run the command “terraform down”
 
   ```bash
   [app@node0 faceapp]$ exit
@@ -238,8 +271,10 @@ https://docs.aws.amazon.com/cli/latest/userguide/cli-services-iam-create-creds.h
   [user@local terraform]$ terraform destroy
   ```
 
-  ![GIF](https://s3.ca-central-1.amazonaws.com/abdil.ca/gscl_STEP7b.gif)
+  ![GIF](readme/gscl_STEP7b.gif)
 
-- Check that instance where destroyed on the AWS dashboard
+<br>
+
+- Inside AWS dashboard check that all instances where destroyed
   
-  ![PNG](https://s3.ca-central-1.amazonaws.com/abdil.ca/Step7.png)
+  ![PNG](readme/Step7.png)
