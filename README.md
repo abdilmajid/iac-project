@@ -272,7 +272,7 @@ When we run Terraform/Packer, we need to validate our AWS credentials. We could 
 
   ```bash
   [app@node0 faceapp]$ podman-compose down
-  [app@node0 faceapp]$ podman systemc prune -all
+  [app@node0 faceapp]$ podman system prune -a
   ```
 
   ![GIF](readme/gscl_STEP7a.gif)
