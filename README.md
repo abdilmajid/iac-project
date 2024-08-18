@@ -1,5 +1,5 @@
 This project aims to use IAC(Infrastructure as code) to provision and manage AWS resources. Some tools that will be used include Terraform, Packer, Ansible, Podman/Docker, Cockpit, etc..
-> **Note:** This repo is was set up to run on RedHat/Centos, Ubuntu, and AWS Linux 2 Operating Systems
+> **Note:** This repo was set up to run on RedHat/Centos, Ubuntu, and AWS Linux 2 Operating Systems
 
 ## Table Of Content
 [STEP 1: Get AWS Credentials](#step-1-get-aws-credentials)<br>
