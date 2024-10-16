@@ -59,7 +59,7 @@ When we run Terraform/Packer, we need to validate our AWS credentials. We could 
     # Config FILE
     [user@local~]$ cat > ~/.aws/config <<EOF
     [default]
-    region="us-east-1"
+    region=us-east-1
     EOF
 
     # Credentials FILE
