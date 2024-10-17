@@ -14,7 +14,7 @@ source "amazon-ebs" "control_centos9" {
   region        = "us-east-1"
   source_ami_filter {
     filters = {
-      name                = "CentOS Stream 9 x86_64 20231128"
+      name                = "CentOS Stream 9 x86_64 20241016"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
